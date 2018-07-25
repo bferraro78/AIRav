@@ -97,7 +97,8 @@ bot.dialog('sendPhotos', [
 
     	masterSession = session;
 
-    	console.log("attachments: " + attachments + "\n");
+    	console.log("attachments: " + attachments[0].name + "\n");
+
     	requestDriver.postPictureGoogleAPI(attachments, function() {
     		
     		console.log("Post google");

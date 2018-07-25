@@ -1,38 +1,53 @@
 var request = require('request');
 var fs = require('fs');
 
+
+const vision = require('@google-cloud/vision');
+
+// Creates a client
+const client = new vision.ImageAnnotatorClient();
+
+
 const POLICIES = "/policies/"
 
 exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 
 	console.log("\nPOST Phtotos...\n");
 
+	var fileName = __dirname + POLICIES + attachmentNames[0].name;
+
+	// Performs text detection on the local file
+	client.textDetection(fileName).then(results => {
+		const detections = results[0].textAnnotations;
+		detections.forEach(text => console.log(text));
+	}).catch(err => {
+		console.error('ERROR:', err);
+	}); 
+
+	// client
+	// .imageProperties(fileNames)
+	// .then(results => {
+	// const properties = results[0].imagePropertiesAnnotation;
+	// const colors = properties.dominantColors.colors;
+	// colors.forEach(color => console.log(color));
+	// })
+	// .catch(err => {
+	// console.error('ERROR:', err);
+	// });
+
 	// Create read streams for all files
-	var attachmentsFullURL = createReadStreams(attachmentNames);
-	console.log(attachmentsFullURL);
-
-	var formData = {
-
-		attachments: attachmentsFullURL,
-
-	  // Pass optional meta-data with an 'options' object with style: {value: DATA, options: OPTIONS}
-	  // Use case: for some types of streams, you'll need to provide "file"-related information manually.
-	  // See the `form-data` README for more information about options: https://github.com/form-data/form-data
-	  // custom_file: {
-	  //   value:  fs.createReadStream('/dev/urandom'),
-	  //   options: {
-	  //     contentType: 'image/jpeg'
-	  //   }
-	  // }
-	};
-
+	// var attachmentsFullURL = createReadStreams(attachmentNames);
 	/* POST Request, sending data to GOOGLE VISION API */
-	request.post({url:'http://localhost:3000/', formData: formData}, function callback(err, httpResponse, body) {
-		if (err) {
-	    	console.error('upload failed:', err);
-		}
-			console.log('Upload successful!  Server responded with:', body);
-	});
+	// request.post({url: "http://localhost:3000/", body: json.stringify(body)}, function callback(err, httpResponse, body) {
+	// 	if (err) {
+	//     	console.error('upload failed:', err);
+	// 	}
+	// 		console.log('Upload successful!  Server responded with:', body);
+	// });
+
+
+
+
 
 	callback();
 
@@ -40,10 +55,32 @@ exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 
 function createReadStreams(attachmentNames) {
 	var attachmentsFullURL = [];
+
 	for (var i = 0; i < attachmentNames.length; i++) {
 		var fullURLAttachment = __dirname + POLICIES + attachmentNames[i].name;
-		attachmentsFullURL.push(fs.createReadStream(fullURLAttachment));
+		
+		// var readStream = fs.createReadStream(fullURLAttachment); 
+
+		// var data = '';
+		// readStream.on('data', function(chunk) {  
+		// 	data += chunk;
+		// }).on('end', function() {
+		// 	attachmentsFullURL.push(data);
+		// 	console.log(attachmentsFullURL);
+		// }); 
+
+		try {  
+    		var data = fs.readFileSync(fullURLAttachment);
+		    // console.log(data);    
+		    attachmentsFullURL.push(data);
+		} catch(e) {
+		    console.log('Error:', e.stack);
+		}
+
+		
 	}
+
+	console.log(attachmentsFullURL);
 	return attachmentsFullURL;
 }
 
