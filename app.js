@@ -75,7 +75,7 @@ bot.dialog('/', [
 
     
     sleep(6000).then(() => {
-        builder.Prompts.text(session, 'First, I would like to know your name. Please type your answer below.');
+        builder.Prompts.text(session, 'First, I would like to know a little about you. Please type your name below in the text box.');
         
     })
 
@@ -135,8 +135,6 @@ bot.dialog('postGoolgeVision', [
             builder.Prompts.choice(session, "Since you have an auto policy, I need to know whether you currently own a home or are renting.", "I own a home|I am renting",{ listStyle: 3 });
         })
 		
-
-	    
     }, 
     function (session, results) {
         var homeOrRent = results.response.entity;
@@ -173,8 +171,9 @@ bot.dialog('postGoolgeVision', [
 bot.dialog('homeOwnersPath', [ 
     function (session) {
         // 1a. How long have you owned your home
-        builder.Prompts.number(session, "How many years have you owned your home? (If less than one year, write in 1).");
-
+        sleep(3000).then(() => {
+            builder.Prompts.number(session, "How many years have you owned your home? (If less than one year, write in 1).");
+        })
     }, 
     function(session, results) {
 
@@ -182,12 +181,12 @@ bot.dialog('homeOwnersPath', [
         setMasterSession(session);
 
         // 1b. What is the approx market vaule fo your home
-        builder.Prompts.number(session, "What is the approximate vaule of your home?");
+        sleep(3000).then(() => {
+            builder.Prompts.number(session, "What is the approximate vaule of your home?");
+        })
+        
     },
     function(session, results) {
-
-        console.log("\n\n"+ results.response +"\n\n");
-
         session.userData.homeValue = results.response;
         setMasterSession(session);
         session.beginDialog('finalInfoGather');
@@ -198,14 +197,19 @@ bot.dialog('homeOwnersPath', [
 bot.dialog('finalInfoGather', [ 
     function (session) {
         // 2. How much do you have saved up in any long term finanial assets outside of your 401k or retirement plans. Mutual funds, bonds, etc. (Total Finanical Assets)
-        builder.Prompts.number(session, "How much do you have saved up in any long term finanial assets outside of your 401k or retirement plans (Mutual funds, bonds, etc.).");
+        sleep(3000).then(() => {
+            builder.Prompts.number(session, "How much do you have saved up in any long term finanial assets outside of your 401k or retirement plans (Mutual funds, bonds, etc.).");
+        })
     },
     function(session, results) {
         session.userData.totalFinancialAssests = results.response;
         setMasterSession(session);
 
         // 3. What is your approximate annual income?
-        builder.Prompts.number(session, "What is your approximate annual income?");
+        sleep(3000).then(() => {
+            builder.Prompts.number(session, "What is your approximate annual income?");
+        })
+        
     },
     function(session, results) {
         session.userData.yearlyIncome = results.response;
