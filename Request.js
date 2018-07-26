@@ -1,6 +1,7 @@
 var request = require('request');
 var fs = require('fs');
-var docParser = require('./helpers/aaapolicyparser');
+var aaaParser = require('./helpers/aaapolicyparser');
+var travParser = require('./helpers/travelerspolicyparser');
 const vision = require('@google-cloud/vision');
 
 // Creates a client
@@ -21,10 +22,20 @@ exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 	client.textDetection(fileName).then(results => {
 		const detections = results[0].textAnnotations;
 		let informationToRetrieve = '';
+
+		//determine which document it is
+		var parser = aaaParser;
+		for (var i = 0; i < 25; i++) {
+			isTravelers = detections[i].description == 'TRAVELERS';
+			if(isTravelers){
+				parser = travParser;
+				break;
+			}
+		}
+
 		for (var i = 0; i < detections.length; i++) {
-			if (docParser.isTheOne(detections[i])) {
-				var model = docParser.retrieveData(detections[i].description);
-				// Callback model when set
+			if (parser.isTheOne(detections[i])) {
+				var model = parser.retrieveData(detections[i].description);
 				break;
 			}
 		}
@@ -34,8 +45,6 @@ exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 	}).catch(err => {
 		console.error('ERROR:', err);
 	}); 
-
-
 }
 
 function createReadStreams(attachmentNames) {

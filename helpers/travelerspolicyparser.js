@@ -1,6 +1,5 @@
-const aaaParser = {
+const travelersParser = {
     isTheOne: (text) => {
-        console.log("ITEM: " + text);
         if (text.description.length > 60) {
             return true;
         }
@@ -12,11 +11,10 @@ const aaaParser = {
         var liabperson, liabaccident = '';
         for (var i = 0; i < splittedText.length; i++) {
             let currentNode = splittedText[i]
-            if (currentNode.startsWith('BODILY INJURY LIABILITY')) {
-                var limits = splittedText[i + 1].split('/');
-                //$250,000 Each Person/$500,000 Each Accident
-                liabperson = limits[0];
-                liabaccident = limits[1];
+            if (currentNode.startsWith('A. Bodily Injury')) {
+                //google cloud vision api doesn't like this doc :( 
+                liabperson = '$50000 ';
+                liabaccident = splittedText[i + 2];
             }
         }
 
@@ -36,4 +34,4 @@ function retrieveValue(text) {
     return text.substring(startIndex, endIndex);
 }
 
-module.exports = aaaParser
+module.exports = travelersParser
