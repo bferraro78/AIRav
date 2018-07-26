@@ -64,7 +64,7 @@ bot.dialog('/', [
         session.send("Hello! I am AIRav. Lets find out if you have the right insurance.");
 
         sleep(3000).then(() => {
-            session.send("*Disclaimer! Please give me all of the policies you own. My advise is only as good as the information you give me! We value your privacy, any information you provide will be kept secret.*");
+            session.send("*Disclaimer! Please give me all of the policies you own. My advice is only as good as the information you give me! We value your privacy, any information you provide will be kept secret.*");
 
         })
 
@@ -212,11 +212,10 @@ bot.dialog('finalInfoGather', [
     function (session, results) {
         session.userData.yearlyIncome = results.response;
         setMasterSession(session);
-        masterSession.endDialog("Thank you for your answers %s! Your advise is on its way...", masterSession.userData.userName);
+        session.send("Thank you for your answers %s! Your advice is on its way...", masterSession.userData.userName);
 
         // Calculate Net Worth/Net Worth Income
         calculateInput(masterSession);
-
 
         //Advise on MINIMUM Liability Limit Increase - A1
         var awsPayload = {
@@ -241,8 +240,8 @@ bot.dialog('finalInfoGather', [
         var response = awsAdapter.getPrediction(awsPayload, function (prediction) {
             console.log(prediction);
 
-            var adviseNumber = prediction.Prediction.predictedValue;
-            console.log(adviseNumber);
+            var adviceNumber = prediction.Prediction.predictedValue;
+            console.log(adviceNumber);
             
             if (adviceNumber > 350000) {
                 // then output 500,000    
@@ -282,40 +281,34 @@ bot.dialog('finalInfoGather', [
                 console.log("Umbrella Response:" + umbrellaModelResponse);
                 switch (normalModelResponse) {
                     case (500000):
-                        if (umbrellaModelResponse === 1) {
-                            //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident - Add additional protection for higher risks faced by adding an umbrella policy with coverage of at-least $1 million
+                        console.log("\n500000 response\n");
+                        if (umbrellaModelResponse == 1) {
+                            console.log("\n500000 - 1 response\n");
+                            masterSession.endDialog("You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident - Add additional protection for higher risks faced by adding an umbrella policy with coverage of at-least $1 million");
                         }
-                        else if (umbrellaModelResponse === 0) {
-                            //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident
+                        else if (umbrellaModelResponse == 0) {
+                            masterSession.endDialog("You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident.");
                         }
                         break;
                     case (300000):
-                        if (umbrellaModelResponse === 1) {
-
+                        if (umbrellaModelResponse == 1) {
+                            masterSession.endDialog("You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $300,000 per accident -  Add additional protection for higher risks faced by adding an umbrella policy.");
                         }
-                        else if (umbrellaModelResponse === 0) {
-                            //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $300,000 per accident
+                        else if (umbrellaModelResponse == 0) {
+                            masterSession.endDialog("You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $300,000 per accident");
                         }
                         break;
                     case (0):
-                        if (umbrellaModelResponse === 1) {
-                            //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Add additional protection for higher risks faced by adding an umbrella policy with coverage of at-least $1 million
+                        if (umbrellaModelResponse == 1) {
+                            masterSession.endDialog("You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Add additional protection for higher risks faced by adding an umbrella policy with coverage of at-least $1 million");
                         }
-                        else if (umbrellaModelResponse === 0) {
-                            //Congratulations! You are adequately covered for any liability payouts
+                        else if (umbrellaModelResponse == 0) {
+                            masterSession.endDialog("Congratulations! You are adequately covered for any liability payouts");
                         }
                         break;
                 }
             });
         });
-
-        // ADVISE Limitied Liability Limit advise
-        // ADVISE - 
-        // 0 - say noting about umbrella
-        //1 - consider taking umbrella policy
-
-        // WIPE MASTER SESSION!!!
-        //masterSession = ''
     }
 ]);
 
