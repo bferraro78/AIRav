@@ -19,35 +19,10 @@ exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 	// Performs text detection on the local file
 	client.textDetection(fileName).then(results => {
 		const detections = results[0].textAnnotations;
-		detections.forEach(text => console.log(text));
+		// detections.forEach(text => console.log(text));
 	}).catch(err => {
 		console.error('ERROR:', err);
 	}); 
-
-	// client
-	// .imageProperties(fileNames)
-	// .then(results => {
-	// const properties = results[0].imagePropertiesAnnotation;
-	// const colors = properties.dominantColors.colors;
-	// colors.forEach(color => console.log(color));
-	// })
-	// .catch(err => {
-	// console.error('ERROR:', err);
-	// });
-
-	// Create read streams for all files
-	// var attachmentsFullURL = createReadStreams(attachmentNames);
-	/* POST Request, sending data to GOOGLE VISION API */
-	// request.post({url: "http://localhost:3000/", body: json.stringify(body)}, function callback(err, httpResponse, body) {
-	// 	if (err) {
-	//     	console.error('upload failed:', err);
-	// 	}
-	// 		console.log('Upload successful!  Server responded with:', body);
-	// });
-
-
-
-
 
 	callback();
 
