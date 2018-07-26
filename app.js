@@ -69,10 +69,9 @@ bot.dialog('/', [
     	session.send("Hello! I am AIRav. Lets find out if you have the right insurance.");
 
     sleep(3000).then(() => {
-        session.send("*Disclaimer! Please give me all of the policies you own. My advise is only as good as the information you give me!");
+        session.send("*Disclaimer! Please give me all of the policies you own. My advise is only as good as the information you give me! We value your privacy, any information you provide will be kept secret.*");
         
     })
-
     
     sleep(6000).then(() => {
         builder.Prompts.text(session, 'First, I would like to know a little about you. Please type your name below in the text box.');
@@ -148,7 +147,7 @@ bot.dialog('postGoolgeVision', [
         setMasterSession(session);
 
         sleep(2250).then(() => {
-            session.send("Great! Now I would like to ask you a few more questions about your property expenses.");
+            session.send("Great! Now I would like to ask you a few more questions.");
             if (session.userData.homeowner == "Home Owner") {
                 // Home owner dialogs
                 console.log("Home Owner Path");
