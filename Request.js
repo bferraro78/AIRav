@@ -1,7 +1,6 @@
 var request = require('request');
 var fs = require('fs');
-
-
+var docParser = require('./helpers/aaapolicyparser');
 const vision = require('@google-cloud/vision');
 
 // Creates a client
@@ -19,13 +18,18 @@ exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 	// Performs text detection on the local file
 	client.textDetection(fileName).then(results => {
 		const detections = results[0].textAnnotations;
-		detections.forEach(text => console.log(text));
+		let informationToRetrieve = '';
+		for (var i = 0; i < detections.length; i++) {
+			if (docParser.isTheOne(detections[i])) {
+				var model = docParser.retrieveData(detections[i].description);
+				return model;
+			}
+		}
 	}).catch(err => {
 		console.error('ERROR:', err);
 	}); 
 
 	callback();
-
 }
 
 function createReadStreams(attachmentNames) {
