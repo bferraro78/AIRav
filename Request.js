@@ -19,7 +19,7 @@ exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 	// Performs text detection on the local file
 	client.textDetection(fileName).then(results => {
 		const detections = results[0].textAnnotations;
-		// detections.forEach(text => console.log(text));
+		detections.forEach(text => console.log(text));
 	}).catch(err => {
 		console.error('ERROR:', err);
 	}); 

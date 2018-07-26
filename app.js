@@ -5,9 +5,11 @@ var restify = require('restify');
 var express = require('express'),
 bodyParser = require('body-parser');
 
-// 
+ 
 var requestDriver = require('./Request.js');
 
+// AwsModel JSON
+var AwsModel = require('./AwsModel.js');
 
 // Set up Express server
 var app = express(); // create Express.js object
@@ -64,20 +66,35 @@ bot.dialog('/', [
     	
 		setMasterSession(session);
 
-    	session.send("Hello! I am AIRav. Lets find out if you have the right insurance and how I can save you some money.");
-    	session.send("*Disclaimer! Please give me all of the policies you own. My advise is only as good as the information you give me!");
+    	session.send("Hello! I am AIRav. Lets find out if you have the right insurance.");
 
-        builder.Prompts.text(session, 'First, What is your name?');
+    sleep(3000).then(() => {
+        session.send("*Disclaimer! Please give me all of the policies you own. My advise is only as good as the information you give me!");
+        
+    })
+
+    
+    sleep(6000).then(() => {
+        builder.Prompts.text(session, 'First, I would like to know your name. Please type your answer below.');
+        
+    })
+
+
     },
     function (session, results) {
     	var name = session.message.text;
+        // Save name
+        session.userData.userName = name;
+
     	session.send("Hello %s!", name);
 
-    	// Save name
-    	session.userData.userName = name;
+        sleep(3000).then(() => {
+            builder.Prompts.attachment(session, "Please upload pictures of your insurance polices. Include home, car, health, we need any and all types of policies you may have." +
+            "Click on the image next to the left of the text box and shift click as many polices as you would like.");
+        })
 
-    	builder.Prompts.attachment(session, "Please upload pictures of your insurance polices. Include home, car, health, we need any and all types of policies you may have." +
-    		"Click on the image next to the left of the text box and shift click as many polices as you would like.");
+
+
 
     },
     function (session, results) {
@@ -101,13 +118,9 @@ bot.dialog('sendPhotos', [
     	console.log("attachments: " + attachments[0].name + "\n");
 
     	requestDriver.postPictureGoogleAPI(attachments, function() {
-
     		// This function will coninute with the information given
     		postGoogle();
     	}); 
-
-	    // session.endDialog("Peace out %s", session.userData.userName);
-
     }
 ]);
 
@@ -115,31 +128,44 @@ bot.dialog('sendPhotos', [
 
 // Send Photos to GoogleAPI
 bot.dialog('postGoolgeVision', [
-    function (session) {
-    	session.send("I see that you have an auto policy. I would like to ask you a few more questions to advise you better.");
-
-
+    function (session) {    	
     	// 1. How is your living situation ? home owner or renter
         // builder.Prompts.number(session, 'First queston, are you a homeowner?'); RICHA MAY NOT WANT, TOO FLASHY FOR RENTERS CHOICE
-		builder.Prompts.choice(session, "First queston, are you a homeowner?", "Home Owner|Renter",{ listStyle: 3 });
+        sleep(3000).then(() => {
+            builder.Prompts.choice(session, "Since you have an auto policy, I need to know whether you currently own a home or are renting.", "I own a home|I am renting",{ listStyle: 3 });
+        })
+		
 
 	    
-    }, function (session, results) {
-        session.userData.homeowner = results.response.entity;
+    }, 
+    function (session, results) {
+        var homeOrRent = results.response.entity;
+        // set home owner logic
+        if (homeOrRent == "I own a home") {
+            session.userData.homeowner = "Home Owner"
+        } else {
+            session.userData.homeowner = "Renter"
+        }
+        
         setMasterSession(session);
 
-        if (session.userData.homeowner == "Home Owner") {
-            // Home owner dialogs
-            console.log("Home Owner Path");
+        sleep(2250).then(() => {
+            session.send("Great! Now I would like to ask you a few more questions about your property expenses.");
+            if (session.userData.homeowner == "Home Owner") {
+                // Home owner dialogs
+                console.log("Home Owner Path");
 
-            session.beginDialog('homeOwnersPath');
+                session.beginDialog('homeOwnersPath');
 
-        } else {
-            // Renters dialogs
-            console.log("Renter Path");
+            } else {
+                // Renters dialogs
+                console.log("Renter Path");
 
-            session.beginDialog('finalInfoGather');
-        }
+                session.beginDialog('finalInfoGather');
+            }
+        })
+
+
     }
 ]);
 
@@ -147,7 +173,7 @@ bot.dialog('postGoolgeVision', [
 bot.dialog('homeOwnersPath', [ 
     function (session) {
         // 1a. How long have you owned your home
-        builder.Prompts.number(session, "How long have you owned your home? (If less than one year, write in 1).");
+        builder.Prompts.number(session, "How many years have you owned your home? (If less than one year, write in 1).");
 
     }, 
     function(session, results) {
@@ -184,23 +210,70 @@ bot.dialog('finalInfoGather', [
     function(session, results) {
         session.userData.yearlyIncome = results.response;
         setMasterSession(session);
-        masterSession.endDialog("Great Talking %s! Your answer is on its way...", masterSession.userData.userName);
+        masterSession.endDialog("Thank you for your answers %s! Your advise is on its way...", masterSession.userData.userName);
+
+        // Calculate Net Worth/Net Worth Income
+        calculateInput(masterSession);
 
 
+        //Advise on MINIMUM Liability Limit Increase - A1
 
+        // Set AwsModel JSON Object
+        var awsModel =  {
+            "Row" : 0,
+            "Liability Limit Per person" : 25000, // take from sheet
+            "Liability Limit Per accident" : 50000, // take from sheet
+            "Market Value of Home" : masterSession.userData.homeValue,
+            "Years living in home" : masterSession.userData.yearsOwnedHome,
+            "Value of financial assets (not including 401k)" : masterSession.userData.totalFinancialAssests,
+            "Average Annual Income" : masterSession.userData.yearlyIncome,
+            "Net Worth" : masterSession.userData.netWorth,
+            "Net Worth + Income" : masterSession.userData.netWorthPlusIncome
+        }
 
-        console.log(masterSession);
+        console.log(awsModel);
+
+        // Send AwsModel 
+
+        // ADVISE Limitied Liability Limit advise
+        // ADVISE - 
+        // 0 - say noting about umbrella
+        //1 - consider taking umbrella policy
+
         // TODO - WIPE MASTER SESSION!!!
     }
 ]);
 
 
+function calculateInput(masterSession) {
+        
+        var userData = masterSession.userData;
+
+        var totalFinancialAssests = userData.totalFinancialAssests;
+        var twentyPercentHomeValue = (userData.homeValue * .20);
+        var twentyPercentYearlyIncome = (userData.yearlyIncome*.20);
+        var thirdOfYearsOwnedHouse = (userData.yearsOwnedHome / 30);
+
+        var netWorth;
+        var netWorthPlusIncome;
+
+    if (userData.homeowner == "Home Owner") {
+        // Home Owners
+
+        netWorth = totalFinancialAssests + twentyPercentHomeValue + (thirdOfYearsOwnedHouse*.80);
+        netWorthPlusIncome = netWorth + twentyPercentYearlyIncome;
 
 
+    } else {
+        // Renters
+        netWorth = totalFinancialAssests;
+        netWorthPlusIncome = netWorth + twentyPercentYearlyIncome;
+    }
 
+    masterSession.userData.netWorth = netWorth;
+    masterSession.userData.netWorthPlusIncome = netWorthPlusIncome;
 
-
-
+}
 
 
 
@@ -223,5 +296,9 @@ app.get('/:collection', function(req, res) {
 /* Utilities */
 function setMasterSession(session) {
 	masterSession = session;
+}
+
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
 }
 
