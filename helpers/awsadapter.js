@@ -11,7 +11,7 @@ const awsAdapter = {
             }
             else {
                 //success
-                console.log("Data: " + data);
+                // console.log("Data: " + data);
                 callback(data);
             }
         });
