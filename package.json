@@ -19,6 +19,7 @@
   "homepage": "https://github.com/bferraro78/AIRav#readme",
   "dependencies": {
     "@google-cloud/vision": "^0.21.0",
+    "aws-sdk": "^2.281.1",
     "botbuilder": "^3.15.0",
     "express": "^4.16.3",
     "request": "^2.87.0",

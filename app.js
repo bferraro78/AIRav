@@ -1,12 +1,11 @@
 var builder = require('botbuilder');
 var restify = require('restify');
-
-// Express REST API / Server
 var express = require('express'),
 bodyParser = require('body-parser');
 
  
 var requestDriver = require('./Request.js');
+var awsAdapter = require('./helpers/awsadapter');
 
 // Set up Express server
 var app = express(); // create Express.js object
@@ -223,22 +222,28 @@ bot.dialog('finalInfoGather', [
 
         //Advise on MINIMUM Liability Limit Increase - A1
 
-        // Set AwsModel JSON Object
         var awsModel =  {
-            "Row" : 0,
-            "Liability Limit Per person" : masterSession.userData.LiabilityLimitPerPerson, // from uploaded policy
-            "Liability Limit Per accident" : masterSession.userData.LiabilityLimitPerAccident, // from uploaded policy
-            "Market Value of Home" : masterSession.userData.homeValue,
-            "Years living in home" : masterSession.userData.yearsOwnedHome,
-            "Value of financial assets (not including 401k)" : masterSession.userData.totalFinancialAssests,
-            "Average Annual Income" : masterSession.userData.yearlyIncome,
-            "Net Worth" : masterSession.userData.netWorth,
-            "Net Worth + Income" : masterSession.userData.netWorthPlusIncome
+            'Row' : 0,
+            'Liability Limit Per person' : 25000, // take from sheet
+            'Liability Limit Per accident' : 50000, // take from sheet
+            'Market Value of Home' : masterSession.userData.homeValue,
+            'Years living in home' : masterSession.userData.yearsOwnedHome,
+            'Value of financial assets (not including 401k)' : masterSession.userData.totalFinancialAssests,
+            'Average Annual Income' : masterSession.userData.yearlyIncome,
+            'Net Worth' : masterSession.userData.netWorth,
+            'Net Worth + Income' : masterSession.userData.netWorthPlusIncome
+        }
+
+        var awsPayload = {
+            'MLModelId': 'ml-bmsBCcJ7kMq',
+            'Record': JSON.stringify(awsModel),
+            'PredictEndpoint': 'https://realtime.machinelearning.us-east-1.amazonaws.com/'
         }
 
         console.log(awsModel);
 
         // Send AwsModel 
+        var response = awsAdapter.getPrediction(awsPayload);
 
         // ADVISE Limitied Liability Limit advise
         // ADVISE - 
