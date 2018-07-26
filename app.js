@@ -286,7 +286,7 @@ bot.dialog('finalInfoGather', [
                             //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident
                         }
                         break;
-                    case (30000):
+                    case (300000):
                         if (umbrellaModelResponse === 1) {
 
                         }
