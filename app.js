@@ -239,12 +239,11 @@ bot.dialog('finalInfoGather', [
         // Send AwsModel 
         var normalModelResponse = '';
         var response = awsAdapter.getPrediction(awsPayload, function (prediction) {
-
             console.log(prediction);
 
             var adviseNumber = prediction.Prediction.predictedValue;
             console.log(adviseNumber);
-
+            
             if (adviseNumber > 350000) {
                 // then output 500,000    
                 normalModelResponse = 500000
