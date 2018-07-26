@@ -8,9 +8,6 @@ bodyParser = require('body-parser');
  
 var requestDriver = require('./Request.js');
 
-// AwsModel JSON
-var AwsModel = require('./AwsModel.js');
-
 // Set up Express server
 var app = express(); // create Express.js object
 app.use(bodyParser.json()); // req.body
