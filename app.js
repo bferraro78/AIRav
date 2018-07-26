@@ -220,35 +220,51 @@ bot.dialog('finalInfoGather', [
 
         //Advise on MINIMUM Liability Limit Increase - A1
 
-        var awsModel =  {
-            'Row' : 0,
-            'Liability Limit Per person' : masterSession.userData.LiabilityLimitPerPerson, // take from sheet
-            'Liability Limit Per accident' : masterSession.userData.LiabilityLimitPerAccident, // take from sheet
-            'Market Value of Home' : masterSession.userData.homeValue,
-            'Years living in home' : masterSession.userData.yearsOwnedHome,
-            'Value of financial assets (not including 401k)' : masterSession.userData.totalFinancialAssests,
-            'Average Annual Income' : masterSession.userData.yearlyIncome,
-            'Net Worth' : masterSession.userData.netWorth,
-            'Net Worth + Income' : masterSession.userData.netWorthPlusIncome
-        }
-
         var awsPayload = {
-            'MLModelId': 'ml-bmsBCcJ7kMq',
-            'Record': JSON.stringify(awsModel),
-            'PredictEndpoint': 'https://realtime.machinelearning.us-east-1.amazonaws.com/'
+            "MLModelId": "ml-bmsBCcJ7kMq",
+            "Record": {
+                "Row" : '0',
+                "Liability Limit Per person" : "\'" + masterSession.userData.LiabilityLimitPerPerson.replace(',', '') + "\'", // take from sheet
+                "Liability Limit Per accident" : "\'" + masterSession.userData.LiabilityLimitPerAccident.replace(',', '') + "\'", // take from sheet
+                "Market Value of Home" : "\'" + masterSession.userData.homeValue + "\'",
+                "Years living in home" : "\'"  + masterSession.userData.yearsOwnedHome + "\'",
+                "Value of financial assets (not including 401k)" : "\'" + masterSession.userData.totalFinancialAssests + "\'",
+                "Average Annual Income" : "\'" + masterSession.userData.yearlyIncome + "\'",
+                "Net Worth" : "\'" + masterSession.userData.netWorth + "\'",
+                "Net Worth + Income" : "\'" + masterSession.userData.netWorthPlusIncome + "\'"
+            },
+            "PredictEndpoint": "https://realtime.machinelearning.us-east-1.amazonaws.com/"
         }
 
-        console.log(awsModel);
+
+        console.log(awsPayload);
 
         // Send AwsModel 
-        var response = awsAdapter.getPrediction(awsPayload);
+        var response = awsAdapter.getPrediction(awsPayload, function(prediction) {
+
+            var adviseNumber = prediction.prediction.predictedValue;
+            console.log(adviseNumber);  
+
+            if (adviseNumber > 350000) {
+                // then output 500,000
+            } else if (adviseNumber > 250000 && adviseNumber < 349999) {
+                // then output 300,000
+            } else {
+                // then 0 - you are good!
+            }
+
+
+        });
+
+        
 
         // ADVISE Limitied Liability Limit advise
         // ADVISE - 
         // 0 - say noting about umbrella
         //1 - consider taking umbrella policy
 
-        // TODO - WIPE MASTER SESSION!!!
+        // WIPE MASTER SESSION!!!
+        masterSession = ''
     }
 ]);
 

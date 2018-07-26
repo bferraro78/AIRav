@@ -1,7 +1,7 @@
 var AWS = require('aws-sdk');
 
 const awsAdapter = {
-    'getPrediction': (awsModel) => {
+    'getPrediction': (awsModel, callback) => {
         configureAWS();
         var machinelearning = new AWS.MachineLearning();
         machinelearning.predict(awsModel, function (err, data) {
@@ -11,7 +11,8 @@ const awsAdapter = {
             }
             else {
                 //success
-                console.log(data);
+                console.log("Data: " + data);
+                callback(data);
             }
         });
     }
@@ -19,8 +20,8 @@ const awsAdapter = {
 
 function configureAWS() {
     AWS.config = new AWS.Config();
-    AWS.config.accessKeyId = '';
-    AWS.config.secretAccessKey = '';
+    AWS.config.accessKeyId = 'AKIAJ2RTK6GGWUG5WPRA';
+    AWS.config.secretAccessKey = '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';
     AWS.config.region = "us-east-1";
 }
 
