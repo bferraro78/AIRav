@@ -1,0 +1,25 @@
+{
+  "name": "airav",
+  "version": "1.0.0",
+  "description": "An application to help folks determine if they have appropriate coverage of insurance.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bferraro78/AIRav.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bferraro78/AIRav/issues"
+  },
+  "homepage": "https://github.com/bferraro78/AIRav#readme",
+  "dependencies": {
+    "@google-cloud/vision": "^0.21.0",
+    "botbuilder": "^3.15.0",
+    "request": "^2.87.0"
+  }
+}
