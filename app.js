@@ -237,7 +237,7 @@ bot.dialog('finalInfoGather', [
         console.log(awsPayload);
 
         // Send AwsModel 
-        var normalModelResponse = '';
+        var normalModelResponse = 0;
         var response = awsAdapter.getPrediction(awsPayload, function (prediction) {
             console.log(prediction);
             var adviceNumber = prediction.Prediction.predictedValue;
@@ -252,6 +252,7 @@ bot.dialog('finalInfoGather', [
                 normalModelResponse = 0;
             }
 
+            console.log("payload: "+ awsPayload);
             var awsPayload2 = {
                 "MLModelId": "ml-XnFQzHCdKuP",
                 "Record": {
@@ -311,7 +312,7 @@ bot.dialog('finalInfoGather', [
         //1 - consider taking umbrella policy
 
         // WIPE MASTER SESSION!!!
-        masterSession = ''
+        //masterSession = ''
     }
 ]);
 
