@@ -49,9 +49,8 @@ bot.on('conversationUpdate', (message) => {
 
 /* WATERFALLS */
 // Starts the new dialog after getting policy information
-function postGoogle() {
-	console.log("inside post google");
-	masterSession.beginDialog('postGoolgeVision');
+function postGoogle(model) {
+    masterSession.beginDialog('postGoolgeVision');
 }
 
 
@@ -113,9 +112,15 @@ bot.dialog('sendPhotos', [
 
     	console.log("attachments: " + attachments[0].name + "\n");
 
-    	requestDriver.postPictureGoogleAPI(attachments, function() {
-    		// This function will coninute with the information given
-    		postGoogle();
+    	requestDriver.postPictureGoogleAPI(attachments, function(model) {
+            var jsonModel = JSON.parse(model)
+
+            session.userData.LiabilityLimitPerPerson = jsonModel.liabilityPerPerson;
+            session.userData.LiabilityLimitPerAccident = jsonModel.liabilityPerAccident;
+            setMasterSession(session);
+
+            // This function will coninute with the information given
+    		postGoogle(model);
     	}); 
     }
 ]);
@@ -221,8 +226,8 @@ bot.dialog('finalInfoGather', [
         // Set AwsModel JSON Object
         var awsModel =  {
             "Row" : 0,
-            "Liability Limit Per person" : 25000, // take from sheet
-            "Liability Limit Per accident" : 50000, // take from sheet
+            "Liability Limit Per person" : masterSession.userData.LiabilityLimitPerPerson, // from uploaded policy
+            "Liability Limit Per accident" : masterSession.userData.LiabilityLimitPerAccident, // from uploaded policy
             "Market Value of Home" : masterSession.userData.homeValue,
             "Years living in home" : masterSession.userData.yearsOwnedHome,
             "Value of financial assets (not including 401k)" : masterSession.userData.totalFinancialAssests,

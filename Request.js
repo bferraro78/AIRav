@@ -14,6 +14,8 @@ exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 	console.log("\nPOST Phtotos...\n");
 
 	var fileName = __dirname + POLICIES + attachmentNames[0].name;
+	
+	var model;
 
 	// Performs text detection on the local file
 	client.textDetection(fileName).then(results => {
@@ -22,14 +24,18 @@ exports.postPictureGoogleAPI = function (attachmentNames, callback) {
 		for (var i = 0; i < detections.length; i++) {
 			if (docParser.isTheOne(detections[i])) {
 				var model = docParser.retrieveData(detections[i].description);
-				return model;
+				// Callback model when set
+				break;
 			}
 		}
+
+		callback(model);
+
 	}).catch(err => {
 		console.error('ERROR:', err);
 	}); 
 
-	callback();
+
 }
 
 function createReadStreams(attachmentNames) {

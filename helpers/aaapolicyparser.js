@@ -1,6 +1,6 @@
 const aaaParser = {
     isTheOne: (text) => {
-        if (text.description.length > 50) {
+        if (text.description.length > 60) {
             return true;
         }
         return false;
@@ -21,8 +21,9 @@ const aaaParser = {
 
         var model = {
             'liabilityPerPerson': retrieveValue(liabperson),
-            'libilityPerAccident': retrieveValue(liabaccident)
+            'liabilityPerAccident': retrieveValue(liabaccident)
         };
+
         return JSON.stringify(model);
     }
 }
