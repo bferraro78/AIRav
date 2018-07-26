@@ -237,74 +237,77 @@ bot.dialog('finalInfoGather', [
         console.log(awsPayload);
 
         // Send AwsModel 
-        var normalModelResponse = '';
+        var normalModelResponse = 0;
         var response = awsAdapter.getPrediction(awsPayload, function (prediction) {
             console.log(prediction);
 
             var adviseNumber = prediction.Prediction.predictedValue;
             console.log(adviseNumber);
             
-            if (adviseNumber > 350000) {
+            if (adviceNumber > 350000) {
                 // then output 500,000    
-                normalModelResponse = 500000
-            } else if (adviseNumber > 250000 && adviseNumber < 349999) {
+                normalModelResponse = 500000;
+            } else if (adviceNumber > 250000 && adviceNumber < 349999) {
                 // then output 300,000
-                normalModelResponse = 300000
+                normalModelResponse = 300000;
             } else {
                 // then 0 - you are good!
-                normalModelResponse = 0
+                normalModelResponse = 0;
             }
+
+            console.log("payload: "+ awsPayload);
+            var awsPayload2 = {
+                "MLModelId": "ml-XnFQzHCdKuP",
+                "Record": {
+                    "Row": '0',
+                    "Liability Limit Per person": masterSession.userData.LiabilityLimitPerPerson.replace(',', ''), // take from sheet
+                    "Liability Limit Per accident": masterSession.userData.LiabilityLimitPerAccident.replace(',', ''), // take from sheet
+                    "Market Value of Home": masterSession.userData.homeValue.toString(),
+                    "Years living in home": masterSession.userData.yearsOwnedHome.toString(),
+                    "Value of financial assets (not including 401k)": masterSession.userData.totalFinancialAssests.toString(),
+                    "Average Annual Income": masterSession.userData.yearlyIncome.toString(),
+                    "Net Worth": masterSession.userData.netWorth.toString(),
+                    "Net Worth + Income": masterSession.userData.netWorthPlusIncome.toString()
+                },
+                "PredictEndpoint": "https://realtime.machinelearning.us-east-1.amazonaws.com/"
+            }
+
+            var umbrellaModelResponse = 0;
+            var response2 = awsAdapter.getPrediction(awsPayload2, function (prediction2) {
+                console.log(prediction2);
+                umbrellaModelResponse = prediction2.Prediction.predictedLabel;
+
+                //TODO: compare two responses
+                console.log("Normal Response:" + normalModelResponse);
+                console.log("Umbrella Response:" + umbrellaModelResponse);
+                switch (normalModelResponse) {
+                    case (500000):
+                        if (umbrellaModelResponse === 1) {
+                            //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident - Add additional protection for higher risks faced by adding an umbrella policy with coverage of at-least $1 million
+                        }
+                        else if (umbrellaModelResponse === 0) {
+                            //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident
+                        }
+                        break;
+                    case (300000):
+                        if (umbrellaModelResponse === 1) {
+
+                        }
+                        else if (umbrellaModelResponse === 0) {
+                            //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $300,000 per accident
+                        }
+                        break;
+                    case (0):
+                        if (umbrellaModelResponse === 1) {
+                            //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Add additional protection for higher risks faced by adding an umbrella policy with coverage of at-least $1 million
+                        }
+                        else if (umbrellaModelResponse === 0) {
+                            //Congratulations! You are adequately covered for any liability payouts
+                        }
+                        break;
+                }
+            });
         });
-
-        var awsPayload2 = {
-            "MLModelId": "ml-XnFQzHCdKuP",
-            "Record": {
-                "Row": '0',
-                "Liability Limit Per person": masterSession.userData.LiabilityLimitPerPerson.replace(',', ''), // take from sheet
-                "Liability Limit Per accident": masterSession.userData.LiabilityLimitPerAccident.replace(',', ''), // take from sheet
-                "Market Value of Home": masterSession.userData.homeValue.toString(),
-                "Years living in home": masterSession.userData.yearsOwnedHome.toString(),
-                "Value of financial assets (not including 401k)": masterSession.userData.totalFinancialAssests.toString(),
-                "Average Annual Income": masterSession.userData.yearlyIncome.toString(),
-                "Net Worth": masterSession.userData.netWorth.toString(),
-                "Net Worth + Income": masterSession.userData.netWorthPlusIncome.toString()
-            },
-            "PredictEndpoint": "https://realtime.machinelearning.us-east-1.amazonaws.com/"
-        }
-
-        var umbrellaModelResponse = '';
-        var response = awsAdapter.getPrediction(awsPayload2, function (prediction) {
-            console.log(prediction);
-            umbrellaModelResponse = prediction.Prediction.predictedLabel;
-        });
-
-        //TODO: compare two responses
-        switch (normalModelResponse) {
-            case (500000):
-                if (umbrellaModelResponse === 1) {
-                    //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident - Add additional protection for higher risks faced by adding an umbrella policy with coverage of at-least $1 million
-                }
-                else if (umbrellaModelResponse === 0) {
-                    //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $500,000 per accident
-                }
-                break;
-            case (30000):
-                if (umbrellaModelResponse === 1) {
-
-                }
-                else if (umbrellaModelResponse === 0) {
-                    //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Increase the liability limits on your auto policy to atleast $300,000 per accident
-                }
-                break;
-            case (0):
-                if (umbrellaModelResponse === 1) {
-                    //You should consider the following actions to ensure your insurance will cover all your expenses and liability payouts - Add additional protection for higher risks faced by adding an umbrella policy with coverage of at-least $1 million
-                }
-                else if (umbrellaModelResponse === 0) {
-                    //Congratulations! You are adequately covered for any liability payouts
-                }
-                break;
-        }
 
         // ADVISE Limitied Liability Limit advise
         // ADVISE - 
@@ -312,7 +315,7 @@ bot.dialog('finalInfoGather', [
         //1 - consider taking umbrella policy
 
         // WIPE MASTER SESSION!!!
-        masterSession = ''
+        //masterSession = ''
     }
 ]);
 
