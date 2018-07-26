@@ -107,8 +107,6 @@ bot.dialog('/', [
 bot.dialog('sendPhotos', [
     function (session, attachments) {
 
-    	setMasterSession(session);
-
     	console.log("attachments: " + attachments[0].name + "\n");
 
     	requestDriver.postPictureGoogleAPI(attachments, function(model) {
@@ -224,8 +222,8 @@ bot.dialog('finalInfoGather', [
 
         var awsModel =  {
             'Row' : 0,
-            'Liability Limit Per person' : 25000, // take from sheet
-            'Liability Limit Per accident' : 50000, // take from sheet
+            'Liability Limit Per person' : masterSession.userData.LiabilityLimitPerPerson, // take from sheet
+            'Liability Limit Per accident' : masterSession.userData.LiabilityLimitPerAccident, // take from sheet
             'Market Value of Home' : masterSession.userData.homeValue,
             'Years living in home' : masterSession.userData.yearsOwnedHome,
             'Value of financial assets (not including 401k)' : masterSession.userData.totalFinancialAssests,
