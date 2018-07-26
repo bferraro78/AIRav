@@ -178,9 +178,9 @@ bot.dialog('homeOwnersPath', [
         session.userData.yearsOwnedHome = results.response;
         setMasterSession(session);
 
-        // 1b. What is the approx market vaule fo your home
+        // 1b. What is the approx market value fo your home
         sleep(3000).then(() => {
-            builder.Prompts.number(session, "What is the approximate vaule of your home?");
+            builder.Prompts.number(session, "What is the approximate value of your home?");
         })
         
     },
@@ -245,7 +245,7 @@ bot.dialog('finalInfoGather', [
             console.log(prediction);
 
             var adviseNumber = prediction.Prediction.predictedValue;
-            console.log(adviseNumber);  
+            console.log(adviseNumber);
 
             if (adviseNumber > 350000) {
                 // then output 500,000
